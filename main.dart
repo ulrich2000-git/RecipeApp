@@ -12,7 +12,7 @@ class RecipeApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreenAccent),
         useMaterial3: true,
       ),
       home: const HomeScreen(),
@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
-          "Hello, Ulrich bienvenue chez dunu",
+          "Hello, Ulrich welcome to dunu",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         actions: const [
@@ -75,6 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: "Details"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
         currentIndex: _selectedIndex,
@@ -174,6 +175,7 @@ class RecommendationSection extends StatelessWidget {
     {"name": "Creamy Pasta", "author": "David Charles", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6UlAEoa-eijh9xajSq1bizf_bQoLVKmjhBg&s/150"},
     {"name": "Macaroons", "author": "Rachel William", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-CZXz4p1dKOc1Z3EKmc3tmYR4HZw_o1483A&s/150"},
     {"name": "Chicken Dish", "author": "Samantha Lee", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU1PwR5GGwcU6sBzFYso_XaewWXt1NnyPcUg&s/150"},
+    {"name": "Vegetable Salad", "author": "Michael Johnson", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0zJlXcUtSzW7ix4QJtbHD9uBcTE4dqVPohQ&s/150"},
   ];
 
   @override
@@ -185,6 +187,71 @@ class RecommendationSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text("Recommendation",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            TextButton(onPressed: () {}, child: const Text("See all")),
+          ],
+        ),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 0.8,
+          ),
+          itemCount: recipes.length,
+          itemBuilder: (context, index) {
+            return Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                    child: Image.network(recipes[index]['image']!, fit: BoxFit.cover, height: 100, width: double.infinity),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      recipes[index]['name']!,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text("By ${recipes[index]['author']}"),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+//Section Recipes of the week
+class Recipes extends StatelessWidget {
+  const Recipes({super.key});
+
+  final List<Map<String, String>> recipes = const [
+    {"name": "Creamy Pasta", "author": "David Charles", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6UlAEoa-eijh9xajSq1bizf_bQoLVKmjhBg&s/150"},
+    {"name": "Macaroons", "author": "Rachel William", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-CZXz4p1dKOc1Z3EKmc3tmYR4HZw_o1483A&s/150"},
+    {"name": "Chicken Dish", "author": "Samantha Lee", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU1PwR5GGwcU6sBzFYso_XaewWXt1NnyPcUg&s/150"},
+    {"name": "Vegetable Salad", "author": "Michael Johnson", "image": "#"}
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text("Recipe of the week",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             TextButton(onPressed: () {}, child: const Text("See all")),
           ],
