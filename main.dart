@@ -1,298 +1,97 @@
+import 'package:circle_nav_bar/circle_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:innovinweb/homescreen.dart';
+
+import 'detailscreen.dart';
 
 void main() {
-  runApp(const RecipeApp());
+  runApp(const Dunu());
 }
 
-class RecipeApp extends StatelessWidget {
-  const RecipeApp({super.key});
+class Dunu extends StatelessWidget {
+  const Dunu ({super.key});
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreenAccent),
-        useMaterial3: true,
+        primarySwatch: Colors.blue,
       ),
-      home: const HomeScreen(),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  final String title;
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
+  int _tabIndex = 1;
+  int get tabIndex => _tabIndex;
+  set tabIndex(int v) {
+    _tabIndex = v;
+    setState(() {});
+  }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  late PageController pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    pageController = PageController(initialPage: _tabIndex);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          "Hello, Ulrich welcome to dunu",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      extendBody: true,
+      bottomNavigationBar: CircleNavBar(
+        activeIcons: const [
+          Icon(Icons.person, color: Colors.deepPurple),
+          Icon(Icons.home, color: Colors.deepPurple),
+          Icon(Icons.favorite, color: Colors.deepPurple),
+        ],
+        inactiveIcons: const [
+          Text("My"),
+          Text("Home"),
+          Text("Like"),
+        ],
+        color: Colors.white,
+        height: 60,
+        circleWidth: 60,
+        activeIndex: tabIndex,
+        onTap: (index) {
+          tabIndex = index;
+          pageController.jumpToPage(tabIndex);
+        },
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
+        cornerRadius: const BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(8),
+          bottomRight: Radius.circular(24),
+          bottomLeft: Radius.circular(24),
         ),
-        actions: const [
-          CircleAvatar(
-            backgroundColor: Colors.grey,
-            child: Icon(Icons.person, color: Colors.white),
-          ),
-          SizedBox(width: 15),
+        shadowColor: Colors.deepPurple,
+        elevation: 10,
+      ),
+      body: PageView(
+        controller: pageController,
+        onPageChanged: (v) {
+          tabIndex = v;
+        },
+        children: [
+          HomeScreen(),
+          DetailScreen(),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            const Text(
-              "What would you like to cook today?",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            SearchBar(),
-            const SizedBox(height: 20),
-            const CategorySection(),
-            const SizedBox(height: 20),
-            const RecommendationSection(),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: "Details"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.green,
-        onTap: _onItemTapped,
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.green,
-        onPressed: () {},
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-    );
-  }
-}
-
-// Barre de recherche
-class SearchBar extends StatelessWidget {
-  const SearchBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: "Search any recipes",
-        prefixIcon: const Icon(Icons.search),
-        suffixIcon: const Icon(Icons.filter_list),
-        filled: true,
-        fillColor: Colors.grey[200],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide.none,
-        ),
-      ),
-    );
-  }
-}
-
-// Section Catégories
-class CategorySection extends StatelessWidget {
-  const CategorySection({super.key});
-
-  final List<Map<String, dynamic>> categories = const [
-    {"name": "Breakfast", "icon": Icons.free_breakfast},
-    {"name": "Lunch", "icon": Icons.lunch_dining},
-    {"name": "Dinner", "icon": Icons.dinner_dining},
-    {"name": "Dessert", "icon": Icons.cake},
-    {"name": "Snack", "icon": Icons.fastfood},
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text("Categories",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextButton(onPressed: () {}, child: const Text("See all")),
-          ],
-        ),
-        SizedBox(
-          height: 80,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.green.shade100,
-                      radius: 28,
-                      child: Icon(categories[index]['icon'], color: Colors.green),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(categories[index]['name']),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// Section Recommendations
-class RecommendationSection extends StatelessWidget {
-  const RecommendationSection({super.key});
-
-  final List<Map<String, String>> recipes = const [
-    {"name": "Creamy Pasta", "author": "David Charles", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6UlAEoa-eijh9xajSq1bizf_bQoLVKmjhBg&s/150"},
-    {"name": "Macaroons", "author": "Rachel William", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-CZXz4p1dKOc1Z3EKmc3tmYR4HZw_o1483A&s/150"},
-    {"name": "Chicken Dish", "author": "Samantha Lee", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU1PwR5GGwcU6sBzFYso_XaewWXt1NnyPcUg&s/150"},
-    {"name": "Vegetable Salad", "author": "Michael Johnson", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0zJlXcUtSzW7ix4QJtbHD9uBcTE4dqVPohQ&s/150"},
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text("Recommendation",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextButton(onPressed: () {}, child: const Text("See all")),
-          ],
-        ),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 0.8,
-          ),
-          itemCount: recipes.length,
-          itemBuilder: (context, index) {
-            return Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-                    child: Image.network(recipes[index]['image']!, fit: BoxFit.cover, height: 100, width: double.infinity),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      recipes[index]['name']!,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text("By ${recipes[index]['author']}"),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
-
-//Section Recipes of the week
-class Recipes extends StatelessWidget {
-  const Recipes({super.key});
-
-  final List<Map<String, String>> recipes = const [
-    {"name": "Creamy Pasta", "author": "David Charles", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6UlAEoa-eijh9xajSq1bizf_bQoLVKmjhBg&s/150"},
-    {"name": "Macaroons", "author": "Rachel William", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-CZXz4p1dKOc1Z3EKmc3tmYR4HZw_o1483A&s/150"},
-    {"name": "Chicken Dish", "author": "Samantha Lee", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU1PwR5GGwcU6sBzFYso_XaewWXt1NnyPcUg&s/150"},
-    {"name": "Vegetable Salad", "author": "Michael Johnson", "image": "#"}
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text("Recipe of the week",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextButton(onPressed: () {}, child: const Text("See all")),
-          ],
-        ),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 0.8,
-          ),
-          itemCount: recipes.length,
-          itemBuilder: (context, index) {
-            return Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-                    child: Image.network(recipes[index]['image']!, fit: BoxFit.cover, height: 100, width: double.infinity),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      recipes[index]['name']!,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text("By ${recipes[index]['author']}"),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
     );
   }
 }
